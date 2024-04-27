@@ -4,7 +4,7 @@ package com.jinlong.jindb.backend.utils;
  * Panic
  *
  * @Author zjl
- * @Date 2024/4/27 17:40
+ * @Date 2024/4/27
  */
 public class Panic {
 

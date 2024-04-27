@@ -5,7 +5,7 @@ package com.jinlong.jindb;
  * Hello world!
  *
  * @Author zjl
- * @Date 2024/4/27 17:38
+ * @Date 2024/4/27
  */
 public class App {
 
