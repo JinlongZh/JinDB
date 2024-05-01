@@ -2,6 +2,7 @@ package com.jinlong.jindb.backend.tm;
 
 import com.jinlong.jindb.backend.utils.Panic;
 import com.jinlong.jindb.backend.utils.Parser;
+import com.jinlong.jindb.common.ErrorConstants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -59,7 +60,7 @@ public class TransactionManager {
         try {
             long fileLen = file.length();
             if (fileLen < LEN_XID_HEADER_LENGTH) {
-                Panic.panic(new RuntimeException("非法的XID文件"));
+                Panic.panic(ErrorConstants.BadXIDFileException);
             }
 
             ByteBuffer buf = ByteBuffer.allocate(LEN_XID_HEADER_LENGTH);
@@ -70,7 +71,7 @@ public class TransactionManager {
             // 检查文件长度时候和XID匹配
             long end = getXidPosition(this.xidCounter + 1);
             if (end != fileLen) {
-                Panic.panic(new RuntimeException("非法的XID文件"));
+                Panic.panic(ErrorConstants.BadXIDFileException);
             }
         } catch (IOException e) {
             Panic.panic(e);

@@ -2,6 +2,7 @@ package com.jinlong.jindb.backend.tm;
 
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -26,9 +27,11 @@ public class TransactionManagerTest {
     private CountDownLatch countDownLatch;
     private final Lock lock = new ReentrantLock();
 
+    private static final String FILE_PATH = "D:\\桌面\\transactionManager_test.xid";
+
     @Test
     public void testByMultiThread() {
-        transactionManager = TransactionManager.create("D:\\桌面\\transactionManager_test.xid");
+        transactionManager = TransactionManager.create(FILE_PATH);
         transactionMap = new ConcurrentHashMap<>();
         countDownLatch = new CountDownLatch(threadCount);
         for (int i = 0; i < threadCount; i++) {
@@ -40,10 +43,10 @@ public class TransactionManagerTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        assert new File(FILE_PATH).delete();
     }
 
     private void worker() {
-        System.out.println(Thread.currentThread().getName() + " start");
         boolean inTransaction = false;
         long transactionXID = 0;
         for (int i = 0; i < testCount; i++) {
@@ -55,17 +58,17 @@ public class TransactionManagerTest {
                 TransactionCount++;
                 transactionXID = xid;
                 inTransaction = true;
-                System.out.println(Thread.currentThread().getName() + " 开启事务，XID: " + xid);
+//                System.out.println(Thread.currentThread().getName() + " 开启事务，XID: " + xid);
             } else {
                 int status = (new Random(System.nanoTime()).nextInt(Integer.MAX_VALUE) % 2) + 1;
                 switch (status) {
                     case 1:
                         transactionManager.commit(transactionXID);
-                        System.out.println(Thread.currentThread().getName() + " 提交事务，XID: " + transactionXID);
+//                        System.out.println(Thread.currentThread().getName() + " 提交事务，XID: " + transactionXID);
                         break;
                     case 2:
                         transactionManager.abort(transactionXID);
-                        System.out.println(Thread.currentThread().getName() + " 回滚事务，XID: " + transactionXID);
+//                        System.out.println(Thread.currentThread().getName() + " 回滚事务，XID: " + transactionXID);
                         break;
                 }
                 transactionMap.put(transactionXID, (byte) status);
