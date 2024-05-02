@@ -19,7 +19,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @Author zjl
  * @Date 2024/5/1
  */
-public class TestPageCache {
+public class PageCacheTest {
 
     private static final String FILE_PATH = "D:\\桌面\\pcacher_simple_test0.db";
 
