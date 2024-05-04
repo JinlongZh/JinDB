@@ -43,6 +43,7 @@ public class TransactionManagerTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        transactionManager.close();
         assert new File(FILE_PATH).delete();
     }
 
@@ -101,7 +102,6 @@ public class TransactionManagerTest {
 
         }
         countDownLatch.countDown();
-        System.out.println(Thread.currentThread().getName() + " end");
     }
 
 }

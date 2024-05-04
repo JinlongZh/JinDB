@@ -21,13 +21,13 @@ public class PageIndex {
     private static final int THRESHOLD = PageCache.PAGE_SIZE / INTERVALS_NO;
 
     private Lock lock;
-    private List<List<Pair>> lists;
+    private List<Pair>[] lists;
 
     public PageIndex() {
         lock = new ReentrantLock();
-        lists = new ArrayList<>(INTERVALS_NO + 1);
+        lists = new List[INTERVALS_NO + 1];
         for (int i = 0; i < INTERVALS_NO + 1; i++) {
-            lists.add(new ArrayList<>());
+            lists[i] = new ArrayList<>();
         }
     }
 
@@ -35,7 +35,7 @@ public class PageIndex {
         lock.lock();
         try {
             int number = freeSpace / THRESHOLD;
-            lists.get(number).add(new Pair(pageNo, freeSpace));
+            lists[number].add(new Pair(pageNo, freeSpace));
         } finally {
             lock.unlock();
         }
@@ -49,17 +49,16 @@ public class PageIndex {
                 number++;
             }
             while (number <= INTERVALS_NO) {
-                List<Pair> list = lists.get(number);
-                if (list.isEmpty()) {
+                if (lists[number].size() == 0) {
                     number++;
                     continue;
                 }
-                return list.remove(0);
+                return lists[number].remove(0);
             }
+            return null;
         } finally {
             lock.unlock();
         }
-        return null;
     }
 
 }

@@ -21,11 +21,11 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class PageCacheTest {
 
-    private static final String FILE_PATH = "D:\\桌面\\pcacher_simple_test0.db";
+    private static final String FILE_PATH = "D:\\桌面\\pcacher_simple_test0";
 
     @Test
     public void testPageCache() throws Exception {
-        PageCache pageCache = PageCacheImpl.create(FILE_PATH, PageCache.PAGE_SIZE * 50);
+        PageCache pageCache = PageCache.create(FILE_PATH, PageCache.PAGE_SIZE * 50);
         for (int i = 0; i < 100; i++) {
             byte[] tmp = new byte[PageCache.PAGE_SIZE];
             tmp[0] = (byte) i;
@@ -36,7 +36,7 @@ public class PageCacheTest {
         }
         pageCache.close();
 
-        pageCache = PageCacheImpl.open(FILE_PATH, PageCache.PAGE_SIZE * 50);
+        pageCache = PageCache.open(FILE_PATH, PageCache.PAGE_SIZE * 50);
         for (int i = 1; i <= 100; i++) {
             // 页码从1开始
             Page page = pageCache.getPage(i);
@@ -45,7 +45,7 @@ public class PageCacheTest {
         }
         pageCache.close();
 
-        assert new File(FILE_PATH).delete();
+        assert new File(FILE_PATH + ".db").delete();
     }
 
     private PageCache pageCache1;
@@ -55,7 +55,7 @@ public class PageCacheTest {
 
     @Test
     public void testPageCacheMultiSimple() throws Exception {
-        pageCache1 = PageCacheImpl.create(FILE_PATH, PageCache.PAGE_SIZE * 50);
+        pageCache1 = PageCache.create(FILE_PATH, PageCache.PAGE_SIZE * 50);
         countDownLatch1 = new CountDownLatch(THREAD_COUNT_1);
         noPages1 = new AtomicInteger(0);
         for (int i = 0; i < THREAD_COUNT_1; i++) {
@@ -66,7 +66,7 @@ public class PageCacheTest {
         countDownLatch1.await();
 
         pageCache1.close();
-        assert new File(FILE_PATH).delete();
+        assert new File(FILE_PATH + ".db").delete();
     }
 
     private void worker1(int id) {
@@ -113,7 +113,7 @@ public class PageCacheTest {
 
     @Test
     public void testPageCacheMulti() throws InterruptedException {
-        pageCache2 = PageCacheImpl.create(FILE_PATH, PageCache.PAGE_SIZE * 10);
+        pageCache2 = PageCache.create(FILE_PATH, PageCache.PAGE_SIZE * 10);
         mockPageCache = new MockPageCache();
         lockNew = new ReentrantLock();
 
@@ -129,14 +129,14 @@ public class PageCacheTest {
 
         pageCache2.close();
         mockPageCache.close();
-        assert new File(FILE_PATH).delete();
+        assert new File(FILE_PATH + ".db").delete();
     }
 
     private void worker2(int id) {
         for (int i = 0; i < 1000; i++) {
             int op = new Random(System.nanoTime()).nextInt(Integer.MAX_VALUE) % 20;
             if (op == 0) {
-                // new page
+                // new getPage
                 byte[] data = RandomUtil.randomBytes(PageCache.PAGE_SIZE);
                 lockNew.lock();
                 int pageNo = pageCache2.newPage(data);

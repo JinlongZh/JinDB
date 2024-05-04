@@ -3,6 +3,7 @@ package com.jinlong.jindb.backend.common;
 import com.jinlong.jindb.common.ErrorConstants;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -122,12 +123,13 @@ public abstract class AbstractRefCountCache<T> {
     protected void close() {
         lock.lock();
         try {
-            Set<Long> keys = cacheMap.keySet();
-            for (long key : keys) {
+            Iterator<Long> iterator = cacheMap.keySet().iterator();
+            while (iterator.hasNext()) {
+                long key = iterator.next();
                 T obj = cacheMap.get(key);
                 releaseForCache(obj);
+                iterator.remove(); // 使用迭代器的remove方法安全地删除元素
                 referenceCountMap.remove(key);
-                cacheMap.remove(key);
             }
         } finally {
             lock.unlock();

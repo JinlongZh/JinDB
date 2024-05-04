@@ -5,8 +5,6 @@ import com.jinlong.jindb.backend.dm.page.Page;
 import com.jinlong.jindb.backend.dm.page.PageImpl;
 import com.jinlong.jindb.backend.utils.Panic;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -24,57 +22,14 @@ import java.util.concurrent.locks.ReentrantLock;
 public class PageCacheImpl extends AbstractRefCountCache<Page> implements PageCache {
 
     // 内存最小限制
-    private static int MEMORY_MIN_LIMIT = 10;
+    private static final int MEMORY_MIN_LIMIT = 10;
+    public static final String DB_SUFFIX = ".db";
 
     private RandomAccessFile file;
     private FileChannel fc;
     private Lock fileLock;
 
     private AtomicInteger pageNumbers;
-
-    public static PageCacheImpl create(String path, long memory) {
-        File file = new File(path);
-        try {
-            if (!file.createNewFile()) {
-                Panic.panic(new IllegalStateException("File already exists: " + path));
-            }
-        } catch (Exception e) {
-            Panic.panic(e);
-        }
-        if (!file.canRead() || !file.canWrite()) {
-            Panic.panic(new RuntimeException("File cannot read or write: " + path));
-        }
-
-        FileChannel fc = null;
-        RandomAccessFile raf = null;
-        try {
-            raf = new RandomAccessFile(file, "rw");
-            fc = raf.getChannel();
-        } catch (FileNotFoundException e) {
-            Panic.panic(e);
-        }
-        return new PageCacheImpl((int) memory / PAGE_SIZE, raf, fc);
-    }
-
-    public static PageCacheImpl open(String path, long memory) {
-        File file = new File(path);
-        if (!file.exists()) {
-            Panic.panic(new IllegalStateException("File already exists: " + path));
-        }
-        if (!file.canRead() || !file.canWrite()) {
-            Panic.panic(new RuntimeException("File cannot read or write: " + path));
-        }
-
-        FileChannel fc = null;
-        RandomAccessFile raf = null;
-        try {
-            raf = new RandomAccessFile(file, "rw");
-            fc = raf.getChannel();
-        } catch (FileNotFoundException e) {
-            Panic.panic(e);
-        }
-        return new PageCacheImpl((int) memory / PAGE_SIZE, raf, fc);
-    }
 
     public PageCacheImpl(int maxResource, RandomAccessFile file, FileChannel fileChannel) {
         super(maxResource);

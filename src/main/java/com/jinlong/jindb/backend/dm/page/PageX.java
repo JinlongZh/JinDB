@@ -20,7 +20,7 @@ public class PageX {
     private static final short OF_DATA = 2;
     public static final int MAX_FREE_SPACE = PageCache.PAGE_SIZE - OF_DATA;
 
-    public static byte[] InitRaw() {
+    public static byte[] initRaw() {
         byte[] raw = new byte[PageCache.PAGE_SIZE];
         setFSO(raw, OF_DATA);
         return raw;
@@ -51,11 +51,11 @@ public class PageX {
      * @param raw  插入的值
      * @Return short
      */
-    public short insert(Page page, byte[] raw) {
+    public static short insert(Page page, byte[] raw) {
         page.setDirty(true);
         short offset = getFSO(page.getData());
         System.arraycopy(raw, 0, page.getData(), offset, raw.length);
-        setFSO(raw, (short) (offset + raw.length));
+        setFSO(page.getData(), (short) (offset + raw.length));
         return offset;
     }
 
@@ -77,7 +77,7 @@ public class PageX {
      * @param offset offset
      * @Return void
      */
-    public void recoverInsert(Page page, byte[] raw, short offset) {
+    public static void recoverInsert(Page page, byte[] raw, short offset) {
         page.setDirty(true);
         System.arraycopy(raw, 0, page.getData(), offset, raw.length);
 
@@ -95,7 +95,7 @@ public class PageX {
      * @param offset offset
      * @Return void
      */
-    public void recoverUpdate(Page page, byte[] raw, short offset) {
+    public static void recoverUpdate(Page page, byte[] raw, short offset) {
         page.setDirty(true);
         System.arraycopy(raw, 0, page.getData(), offset, raw.length);
     }

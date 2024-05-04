@@ -95,4 +95,24 @@ public class DataItemImpl implements DataItem {
         rLock.unlock();
     }
 
+    @Override
+    public Page getPage() {
+        return page;
+    }
+
+    @Override
+    public long getUid() {
+        return uid;
+    }
+
+    @Override
+    public byte[] getOldRaw() {
+        return oldRaw;
+    }
+
+    @Override
+    public SubArray getRaw() {
+        return raw;
+    }
+
 }
