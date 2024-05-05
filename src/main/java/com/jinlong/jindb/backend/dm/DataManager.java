@@ -1,8 +1,9 @@
 package com.jinlong.jindb.backend.dm;
 
 import com.jinlong.jindb.backend.dm.dataItem.DataItem;
+import com.jinlong.jindb.backend.dm.logger.Logger;
 import com.jinlong.jindb.backend.dm.page.PageFirst;
-import com.jinlong.jindb.backend.dm.pcache.PageCache;
+import com.jinlong.jindb.backend.dm.pageCache.PageCache;
 import com.jinlong.jindb.backend.tm.TransactionManager;
 import com.jinlong.jindb.backend.tm.TransactionManagerImpl;
 
@@ -22,18 +23,20 @@ public interface DataManager {
 
     static DataManager create(String path, long memory, TransactionManager transactionManager) {
         PageCache pageCache = PageCache.create(path, memory);
+        Logger logger = Logger.create(path);
 
-        DataManagerImpl dataManager = new DataManagerImpl(pageCache, transactionManager);
+        DataManagerImpl dataManager = new DataManagerImpl(pageCache, logger, transactionManager);
         dataManager.initPageFirst();
         return dataManager;
     }
 
     static DataManager open(String path, long memory, TransactionManagerImpl transactionManagerImpl) {
         PageCache pageCache = PageCache.open(path, memory);
-        DataManagerImpl dataManager = new DataManagerImpl(pageCache, transactionManagerImpl);
-        if(!dataManager.loadCheckPageFirst()) {
-            // 记录错误
-            System.out.println("load check getPage one failed");
+        Logger logger = Logger.create(path);
+
+        DataManagerImpl dataManager = new DataManagerImpl(pageCache, logger, transactionManagerImpl);
+        if (!dataManager.loadCheckPageFirst()) {
+            Recover.recover(transactionManagerImpl, logger, pageCache);
         }
         dataManager.fillPageIndex();
         PageFirst.setVcOpen(dataManager.pageFirst);

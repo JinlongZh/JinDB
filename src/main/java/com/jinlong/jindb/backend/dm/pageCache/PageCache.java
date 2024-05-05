@@ -1,4 +1,4 @@
-package com.jinlong.jindb.backend.dm.pcache;
+package com.jinlong.jindb.backend.dm.pageCache;
 
 import com.jinlong.jindb.backend.dm.page.Page;
 import com.jinlong.jindb.backend.utils.Panic;

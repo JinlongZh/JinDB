@@ -1,6 +1,6 @@
 package com.jinlong.jindb.backend.dm.pageIndex;
 
-import com.jinlong.jindb.backend.dm.pcache.PageCache;
+import com.jinlong.jindb.backend.dm.pageCache.PageCache;
 
 import java.util.ArrayList;
 import java.util.List;

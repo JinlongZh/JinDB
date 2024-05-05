@@ -1,6 +1,6 @@
 package com.jinlong.jindb.backend.dm.page;
 
-import com.jinlong.jindb.backend.dm.pcache.PageCache;
+import com.jinlong.jindb.backend.dm.pageCache.PageCache;
 import com.jinlong.jindb.backend.utils.RandomUtil;
 
 import java.util.Arrays;

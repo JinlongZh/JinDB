@@ -1,6 +1,6 @@
 package com.jinlong.jindb.backend.dm.page;
 
-import com.jinlong.jindb.backend.dm.pcache.PageCache;
+import com.jinlong.jindb.backend.dm.pageCache.PageCache;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;

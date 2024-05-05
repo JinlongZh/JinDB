@@ -1,4 +1,4 @@
-package com.jinlong.jindb.backend.dm.pcache;
+package com.jinlong.jindb.backend.dm.pageCache;
 
 import com.jinlong.jindb.backend.common.AbstractRefCountCache;
 import com.jinlong.jindb.backend.dm.page.Page;

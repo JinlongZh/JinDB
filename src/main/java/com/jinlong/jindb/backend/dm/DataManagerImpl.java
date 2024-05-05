@@ -3,12 +3,13 @@ package com.jinlong.jindb.backend.dm;
 import com.jinlong.jindb.backend.common.AbstractRefCountCache;
 import com.jinlong.jindb.backend.dm.dataItem.DataItem;
 import com.jinlong.jindb.backend.dm.dataItem.DataItemImpl;
+import com.jinlong.jindb.backend.dm.logger.Logger;
 import com.jinlong.jindb.backend.dm.page.Page;
 import com.jinlong.jindb.backend.dm.page.PageFirst;
 import com.jinlong.jindb.backend.dm.page.PageX;
 import com.jinlong.jindb.backend.dm.pageIndex.PageIndex;
 import com.jinlong.jindb.backend.dm.pageIndex.Pair;
-import com.jinlong.jindb.backend.dm.pcache.PageCache;
+import com.jinlong.jindb.backend.dm.pageCache.PageCache;
 import com.jinlong.jindb.backend.tm.TransactionManager;
 import com.jinlong.jindb.backend.utils.Panic;
 import com.jinlong.jindb.backend.utils.Types;
@@ -23,12 +24,15 @@ public class DataManagerImpl extends AbstractRefCountCache<DataItem> implements 
 
     TransactionManager transactionManager;
     PageCache pageCache;
+    Logger logger;
     PageIndex pageIndex;
     Page pageFirst;
 
-    public DataManagerImpl(PageCache pageCache, TransactionManager transactionManager) {
+    public DataManagerImpl(PageCache pageCache, Logger logger, TransactionManager transactionManager) {
+        // 实际的内存限制实际上是在pageCache中, 所以这里应该设置为0, 表示无限
         super(0);
         this.pageCache = pageCache;
+        this.logger = logger;
         this.transactionManager = transactionManager;
         this.pageIndex = new PageIndex();
     }
@@ -72,7 +76,8 @@ public class DataManagerImpl extends AbstractRefCountCache<DataItem> implements 
 
             page = pageCache.getPage(pair.pageNo);
 
-            // TODO 记录日志
+            byte[] log = Recover.insertLog(xid, page, raw);
+            logger.log(log);
 
             short offset = PageX.insert(page, raw);
 
@@ -92,7 +97,9 @@ public class DataManagerImpl extends AbstractRefCountCache<DataItem> implements 
     @Override
     public void close() {
         super.close();
-        // TODO 关闭日志
+        logger.close();
+
+        // 关于pageFirst的操作一定要在Close中被最后执行.
         PageFirst.setVcClose(pageFirst);
         pageFirst.release();
         pageCache.close();
@@ -103,12 +110,7 @@ public class DataManagerImpl extends AbstractRefCountCache<DataItem> implements 
         short offset = (short) (uid & ((1L << 16) - 1));
         uid >>>= 32;
         int pageNo = (int) (uid & ((1L << 32) - 1));
-        Page page = null;
-        try {
-            page = pageCache.getPage(pageNo);
-        } catch (Exception e) {
-            throw e;
-        }
+        Page page = pageCache.getPage(pageNo);
         return DataItem.parseDataItem(page, offset, this);
     }
 
@@ -117,8 +119,16 @@ public class DataManagerImpl extends AbstractRefCountCache<DataItem> implements 
         dataItem.getPage().release();
     }
 
+    /**
+     * 为xid生成update日志
+     *
+     * @param xid
+     * @param dataItem
+     * @Return void
+     */
     public void logDataItem(long xid, DataItem dataItem) {
-
+        byte[] log = Recover.updateLog(xid, dataItem);
+        logger.log(log);
     }
 
     public void releaseDataItem(DataItem dataItem) {

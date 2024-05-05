@@ -2,7 +2,9 @@ package com.jinlong.jindb.backend.dm;
 
 import com.jinlong.jindb.backend.common.SubArray;
 import com.jinlong.jindb.backend.dm.dataItem.DataItem;
-import com.jinlong.jindb.backend.dm.pcache.PageCache;
+import com.jinlong.jindb.backend.dm.logger.LoggerImpl;
+import com.jinlong.jindb.backend.dm.pageCache.PageCache;
+import com.jinlong.jindb.backend.dm.pageCache.PageCacheImpl;
 import com.jinlong.jindb.backend.tm.MockTransactionManager;
 import com.jinlong.jindb.backend.tm.TransactionManager;
 import com.jinlong.jindb.backend.utils.Panic;
@@ -68,8 +70,9 @@ public class DataManagerTest {
         } finally {
             dataManager0.close();
             mockDataManager.close();
-            boolean delete = new File(FILE_PATH + ".db").delete();
-            System.out.println("delete result: " + delete);
+            boolean delete1 = new File(FILE_PATH + PageCacheImpl.DB_SUFFIX).delete();
+            boolean delete2 = new File(FILE_PATH + LoggerImpl.LOG_SUFFIX).delete();
+            System.out.println("delete result: " + (delete1 && delete2));
         }
     }
 
@@ -88,8 +91,9 @@ public class DataManagerTest {
         } finally {
             dataManager0.close();
             mockDataManager.close();
-            boolean delete = new File(FILE_PATH + ".db").delete();
-            System.out.println("delete result: " + delete);
+            boolean delete1 = new File(FILE_PATH + PageCacheImpl.DB_SUFFIX).delete();
+            boolean delete2 = new File(FILE_PATH + LoggerImpl.LOG_SUFFIX).delete();
+            System.out.println("delete result: " + (delete1 && delete2));
         }
     }
 
@@ -157,6 +161,7 @@ public class DataManagerTest {
                     data0.rUnLock();
                     data1.rUnLock();
 
+                    // 测试更新
                     byte[] newData = RandomUtil.randomBytes(dataLen);
                     data0.before();
                     data1.before();
