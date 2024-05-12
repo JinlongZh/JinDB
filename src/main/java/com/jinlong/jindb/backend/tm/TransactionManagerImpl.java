@@ -36,6 +36,8 @@ public class TransactionManagerImpl implements TransactionManager {
     // xid文件中为每个事务指定了1byte的空间用于存储其状态。
     private static final int XID_FIELD_SIZE = 1;
 
+    public static final String XID_SUFFIX = ".xid";
+
     private RandomAccessFile file;
     private FileChannel fc;
     private long xidCounter;

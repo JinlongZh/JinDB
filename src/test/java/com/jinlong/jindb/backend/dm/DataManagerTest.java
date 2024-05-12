@@ -7,6 +7,7 @@ import com.jinlong.jindb.backend.dm.pageCache.PageCache;
 import com.jinlong.jindb.backend.dm.pageCache.PageCacheImpl;
 import com.jinlong.jindb.backend.tm.MockTransactionManager;
 import com.jinlong.jindb.backend.tm.TransactionManager;
+import com.jinlong.jindb.backend.tm.TransactionManagerImpl;
 import com.jinlong.jindb.backend.utils.Panic;
 import com.jinlong.jindb.backend.utils.RandomUtil;
 import org.junit.Test;
@@ -35,6 +36,12 @@ public class DataManagerTest {
     static Random random = new SecureRandom();
 
     private static final String FILE_PATH = "D:\\桌面\\TestDMSingle";
+
+    private void initUids() {
+        uids0 = new ArrayList<>();
+        uids1 = new ArrayList<>();
+        uidsLock = new ReentrantLock();
+    }
 
     @Test
     public void test() throws Exception {
@@ -97,10 +104,35 @@ public class DataManagerTest {
         }
     }
 
-    private void initUids() {
-        uids0 = new ArrayList<>();
-        uids1 = new ArrayList<>();
-        uidsLock = new ReentrantLock();
+
+    private static final String FILE_PATH1 = "D:\\桌面\\TestDMMulti";
+
+    @Test
+    public void testDMMulti() throws InterruptedException {
+        int ThreadNum = 10;
+        TransactionManager transactionManager = new MockTransactionManager();
+        DataManager dataManager = DataManager.create(FILE_PATH1, PageCache.PAGE_SIZE * 10, transactionManager);
+        DataManager mockDataManager = MockDataManager.newMockDataManager();
+        CountDownLatch countDownLatch = new CountDownLatch(ThreadNum);
+
+        try {
+            int tasksNum = 500;
+
+            initUids();
+            for (int i = 0; i < ThreadNum; i++) {
+                Runnable r = () -> worker(dataManager, mockDataManager, tasksNum, 50, countDownLatch);
+                new Thread(r).run();
+            }
+            countDownLatch.await();
+        } finally {
+            dataManager.close();
+            mockDataManager.close();
+            boolean delete1 = new File(FILE_PATH1 + PageCacheImpl.DB_SUFFIX).delete();
+            boolean delete2 = new File(FILE_PATH1 + LoggerImpl.LOG_SUFFIX).delete();
+            System.out.println("delete result: " + (delete1 && delete2));
+        }
+
+
     }
 
     private void worker(DataManager dm0, DataManager dm1, int tasksNum, int insertRation, CountDownLatch countDownLatch) {
@@ -176,6 +208,49 @@ public class DataManagerTest {
         } finally {
             countDownLatch.countDown();
         }
+    }
+
+
+    private static final String FILE_PATH2 = "D:\\桌面\\TestRecoverySimple";
+
+    /**
+     * 测试恢复
+     *
+     * @param
+     * @Return void
+     */
+    @Test
+    public void testRecoverySimple() throws InterruptedException {
+        TransactionManager tm0 = TransactionManager.create(FILE_PATH2);
+        DataManager dm0 = DataManager.create(FILE_PATH2, PageCache.PAGE_SIZE * 30, tm0);
+        DataManager mdm = MockDataManager.newMockDataManager();
+        dm0.close();
+
+        try {
+            initUids();
+            int workerNums = 10;
+            for (int i = 0; i < 8; i++) {
+                dm0 = DataManager.open(FILE_PATH2, PageCache.PAGE_SIZE * 10, tm0);
+                CountDownLatch cdl = new CountDownLatch(workerNums);
+                for (int k = 0; k < workerNums; k++) {
+                    final DataManager dm = dm0;
+                    Runnable r = () -> worker(dm, mdm, 100, 50, cdl);
+                    new Thread(r).run();
+                }
+                cdl.await();
+            }
+        } finally {
+            tm0.close();
+            dm0.close();
+            mdm.close();
+
+            boolean delete = new File(FILE_PATH2 + PageCacheImpl.DB_SUFFIX).delete();
+            boolean delete1 = new File(FILE_PATH2 + LoggerImpl.LOG_SUFFIX).delete();
+            boolean delete2 = new File(FILE_PATH2 + TransactionManagerImpl.XID_SUFFIX).delete();
+            System.out.println("delete:" + delete + "," + delete1 + "," + delete2);
+        }
+
+
     }
 
 }

@@ -32,20 +32,22 @@ public interface TransactionManager {
      * @Return TransactionManager 返回事务管理器
      */
     static TransactionManagerImpl create(String path) {
-        File f = new File(path);
+        String fileName = path + TransactionManagerImpl.XID_SUFFIX;
+
+        File f = new File(fileName);
 
         try {
             // 检查文件是否存在
             if (f.exists()) {
-                Panic.panic(new IllegalStateException("File already exists: " + path));
+                Panic.panic(new IllegalStateException("File already exists: " + fileName));
             }
             // 创建文件
             if (!f.createNewFile()) {
-                Panic.panic(new IllegalStateException("Failed to create f: " + path));
+                Panic.panic(new IllegalStateException("Failed to create f: " + fileName));
             }
             // 检查读写权限
             if (!f.canRead() || !f.canWrite()) {
-                Panic.panic(new IllegalStateException("No read/write permissions on f: " + path));
+                Panic.panic(new IllegalStateException("No read/write permissions on f: " + fileName));
             }
         } catch (IOException e) {
             Panic.panic(e);
@@ -81,16 +83,18 @@ public interface TransactionManager {
      * @Return TransactionManager 返回事务管理器
      */
     static TransactionManagerImpl open(String path) {
-        File file = new File(path);
+        String fileName = path + TransactionManagerImpl.XID_SUFFIX;
+
+        File file = new File(fileName);
 
         // 检查文件是否存在
         if (!file.exists()) {
-            throw new IllegalStateException("File does not exist: " + path);
+            throw new IllegalStateException("File does not exist: " + fileName);
         }
 
         // 检查读写权限
         if (!file.canRead() || !file.canWrite()) {
-            throw new IllegalStateException("No read/write permissions on file: " + path);
+            throw new IllegalStateException("No read/write permissions on file: " + fileName);
         }
 
         try {
@@ -99,7 +103,7 @@ public interface TransactionManager {
             // 返回事务管理器
             return new TransactionManagerImpl(raf, fc);
         } catch (FileNotFoundException e) {
-            throw new IllegalStateException("Error opening file: " + path, e);
+            throw new IllegalStateException("Error opening file: " + fileName, e);
         }
     }
 

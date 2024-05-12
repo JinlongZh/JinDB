@@ -30,13 +30,13 @@ public interface DataManager {
         return dataManager;
     }
 
-    static DataManager open(String path, long memory, TransactionManagerImpl transactionManagerImpl) {
+    static DataManager open(String path, long memory, TransactionManager transactionManager) {
         PageCache pageCache = PageCache.open(path, memory);
-        Logger logger = Logger.create(path);
+        Logger logger = Logger.open(path);
 
-        DataManagerImpl dataManager = new DataManagerImpl(pageCache, logger, transactionManagerImpl);
+        DataManagerImpl dataManager = new DataManagerImpl(pageCache, logger, transactionManager);
         if (!dataManager.loadCheckPageFirst()) {
-            Recover.recover(transactionManagerImpl, logger, pageCache);
+            Recover.recover(transactionManager, logger, pageCache);
         }
         dataManager.fillPageIndex();
         PageFirst.setVcOpen(dataManager.pageFirst);

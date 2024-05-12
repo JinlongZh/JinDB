@@ -27,7 +27,7 @@ public class TransactionManagerTest {
     private CountDownLatch countDownLatch;
     private final Lock lock = new ReentrantLock();
 
-    private static final String FILE_PATH = "D:\\桌面\\transactionManager_test.xid";
+    private static final String FILE_PATH = "D:\\桌面\\transactionManager_test";
 
     @Test
     public void testByMultiThread() {
@@ -44,7 +44,7 @@ public class TransactionManagerTest {
             e.printStackTrace();
         }
         transactionManager.close();
-        assert new File(FILE_PATH).delete();
+        assert new File(FILE_PATH + TransactionManagerImpl.XID_SUFFIX).delete();
     }
 
     private void worker() {
