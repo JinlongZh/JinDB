@@ -8,7 +8,7 @@ import com.jinlong.jindb.backend.utils.Parser;
 import java.util.Arrays;
 
 /**
- * VM向上层抽象出entry
+ * VM向上层抽象出entry，维护了VM中记录的结构
  * entry结构：
  * [XMIN] [XMAX] [data]
  *
@@ -26,6 +26,9 @@ public class Entry {
     private VersionManager versionManager;
 
     public static Entry newEntry(VersionManager versionManager, DataItem dataItem, long uid) {
+        if (dataItem == null) {
+            return null;
+        }
         Entry entry = new Entry();
         entry.uid = uid;
         entry.dataItem = dataItem;
@@ -38,6 +41,9 @@ public class Entry {
         return newEntry(versionManager, di, uid);
     }
 
+    /**
+     * 将xid和data包裹成entry的二进制数据.
+     */
     public static byte[] wrapEntryRaw(long xid, byte[] data) {
         byte[] xmin = Parser.long2Byte(xid);
         byte[] xmax = new byte[8];
@@ -52,7 +58,9 @@ public class Entry {
         dataItem.release();
     }
 
-    // 以拷贝的形式返回内容
+    /**
+     * 以拷贝的形式返回内容
+     */
     public byte[] data() {
         dataItem.rLock();
         try {
@@ -93,6 +101,10 @@ public class Entry {
         } finally {
             dataItem.after(xid);
         }
+    }
+
+    public long getUid() {
+        return uid;
     }
 
 }

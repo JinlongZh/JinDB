@@ -14,12 +14,16 @@ import java.util.Map;
 public class Transaction {
 
     public long xid;
+    // 隔离度
     public int level;
+    // 快照
     public Map<Long, Boolean> snapshot;
+    // 发生的错误， 该事务只能被回滚
     public Exception err;
+    // 该事务是否被自动回滚
     public boolean autoAborted;
 
-    public static Transaction newTransaction(long xid, int level, Map<Long, Boolean> active) {
+    public static Transaction newTransaction(long xid, int level, Map<Long, Transaction> active) {
         Transaction transaction = new Transaction();
         transaction.xid = xid;
         transaction.level = level;
@@ -33,6 +37,7 @@ public class Transaction {
     }
 
     public boolean isInSnapshot(long xid) {
+        // 忽略SUPER_XID
         if (xid == TransactionManagerImpl.SUPER_XID) {
             return false;
         }

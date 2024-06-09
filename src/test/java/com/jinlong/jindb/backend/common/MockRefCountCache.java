@@ -6,7 +6,7 @@ package com.jinlong.jindb.backend.common;
  * @Author zjl
  * @Date 2024/5/1
  */
-public class MockRefCountCache extends AbstractRefCountCache<Long>{
+public class MockRefCountCache extends AbstractRefCountCache<Long> {
 
     public MockRefCountCache() {
         super(50);
@@ -19,6 +19,7 @@ public class MockRefCountCache extends AbstractRefCountCache<Long>{
 
 
     @Override
-    protected void releaseForCache(Long obj) {}
+    protected void releaseForCache(Long obj) {
+    }
 
 }

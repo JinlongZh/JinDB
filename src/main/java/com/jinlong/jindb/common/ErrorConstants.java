@@ -12,4 +12,9 @@ public class ErrorConstants {
 
     // tm
     public static final Exception BadXIDFileException = new RuntimeException("Bad XID file!");
+
+    // vm
+    public static final Exception DeadlockException = new RuntimeException("Deadlock!");
+    public static final Exception ConcurrentUpdateException = new RuntimeException("Concurrent update issue!");
+    public static final Exception NullEntryException = new RuntimeException("Null entry!");
 }
