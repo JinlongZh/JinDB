@@ -1,5 +1,8 @@
 package com.jinlong.jindb.backend.vm;
 
+import com.jinlong.jindb.backend.dm.DataManager;
+import com.jinlong.jindb.backend.tm.TransactionManager;
+
 /**
  * VersionManager接口
  *
@@ -19,5 +22,9 @@ public interface VersionManager {
     void commit(long xid) throws Exception;
 
     void abort(long xid);
+
+    static VersionManager newVersionManager(TransactionManager transactionManager, DataManager dataManager) {
+        return new VersionManagerImpl(transactionManager, dataManager);
+    }
 
 }
