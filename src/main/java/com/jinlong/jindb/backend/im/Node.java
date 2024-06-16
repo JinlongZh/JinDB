@@ -93,6 +93,14 @@ public class Node {
         }
     }
 
+    /**
+     * 新建一个根节点, 该根节点的初始两个子节点为left和right, 初始键值为key
+     *
+     * @param left
+     * @param right
+     * @param key
+     * @Return byte
+     */
     static byte[] newRootRaw(long left, long right, long key) {
         SubArray raw = new SubArray(new byte[NODE_SIZE], 0, NODE_SIZE);
 
@@ -107,6 +115,11 @@ public class Node {
         return raw.raw;
     }
 
+    /**
+     * 新建一个空的根节点, 返回其二进制内容
+     *
+     * @Return byte
+     */
     static byte[] newNilRootRaw() {
         SubArray raw = new SubArray(new byte[NODE_SIZE], 0, NODE_SIZE);
 
@@ -117,6 +130,13 @@ public class Node {
         return raw.raw;
     }
 
+    /**
+     * 读入一个节点, 其自身地址为uid
+     *
+     * @param bTree
+     * @param uid
+     * @Return Node
+     */
     static Node loadNode(BPlusTree bTree, long uid) throws Exception {
         DataItem di = bTree.dataManager.read(uid);
         assert di != null;
@@ -146,6 +166,12 @@ public class Node {
         long siblingUid;
     }
 
+    /**
+     * 寻找对应key的uid, 如果找不到, 则返回sibling uid
+     *
+     * @param key
+     * @Return SearchNextRes
+     */
     public SearchNextRes searchNext(long key) {
         dataItem.rLock();
         try {
@@ -173,6 +199,14 @@ public class Node {
         long siblingUid;
     }
 
+    /**
+     * 在该节点上查询属于[leftKey, rightKey]的地址,
+     * 如果rightKey大于等于该节点的最大的key, 则还返回一个sibling uuid.
+     *
+     * @param leftKey
+     * @param rightKey
+     * @Return LeafSearchRangeRes
+     */
     public LeafSearchRangeRes leafSearchRange(long leftKey, long rightKey) {
         dataItem.rLock();
         try {
@@ -212,6 +246,14 @@ public class Node {
         long siblingUid, newSon, newKey;
     }
 
+    /**
+     * 将对应的数据插入该节点, 并尝试进行分裂.
+     * 如果该份数据不应该插入到此节点, 则返回一个sibling uid.
+     *
+     * @param uid
+     * @param key
+     * @Return InsertAndSplitRes
+     */
     public InsertAndSplitRes insertAndSplit(long uid, long key) throws Exception {
         boolean success = false;
         Exception err = null;

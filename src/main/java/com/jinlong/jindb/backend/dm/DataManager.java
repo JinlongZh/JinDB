@@ -5,7 +5,6 @@ import com.jinlong.jindb.backend.dm.logger.Logger;
 import com.jinlong.jindb.backend.dm.page.PageFirst;
 import com.jinlong.jindb.backend.dm.pageCache.PageCache;
 import com.jinlong.jindb.backend.tm.TransactionManager;
-import com.jinlong.jindb.backend.tm.TransactionManagerImpl;
 
 /**
  * DataManager
