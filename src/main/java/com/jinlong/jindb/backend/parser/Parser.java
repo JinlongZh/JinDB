@@ -22,7 +22,7 @@ public class Parser {
         Object stat = null;
         Exception statErr = null;
         try {
-            switch(token) {
+            switch (token) {
                 case "begin":
                     stat = parseBegin(tokenizer);
                     break;
@@ -56,21 +56,21 @@ public class Parser {
                 default:
                     throw ErrorConstants.InvalidCommandException;
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             statErr = e;
         }
         try {
             String next = tokenizer.peek();
-            if(!"".equals(next)) {
+            if (!"".equals(next)) {
                 byte[] errStat = tokenizer.errStat();
                 statErr = new RuntimeException("Invalid statement: " + new String(errStat));
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             byte[] errStat = tokenizer.errStat();
             statErr = new RuntimeException("Invalid statement: " + new String(errStat));
         }
-        if(statErr != null) {
+        if (statErr != null) {
             throw statErr;
         }
         return stat;
@@ -78,7 +78,7 @@ public class Parser {
 
     private static Show parseShow(Tokenizer tokenizer) throws Exception {
         String tmp = tokenizer.peek();
-        if("".equals(tmp)) {
+        if ("".equals(tmp)) {
             return new Show();
         }
         throw ErrorConstants.InvalidCommandException;
@@ -89,7 +89,7 @@ public class Parser {
         update.tableName = tokenizer.peek();
         tokenizer.pop();
 
-        if(!"set".equals(tokenizer.peek())) {
+        if (!"set".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
         tokenizer.pop();
@@ -97,7 +97,7 @@ public class Parser {
         update.fieldName = tokenizer.peek();
         tokenizer.pop();
 
-        if(!"=".equals(tokenizer.peek())) {
+        if (!"=".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
         tokenizer.pop();
@@ -106,7 +106,7 @@ public class Parser {
         tokenizer.pop();
 
         String tmp = tokenizer.peek();
-        if("".equals(tmp)) {
+        if ("".equals(tmp)) {
             update.where = null;
             return update;
         }
@@ -118,13 +118,13 @@ public class Parser {
     private static Delete parseDelete(Tokenizer tokenizer) throws Exception {
         Delete delete = new Delete();
 
-        if(!"from".equals(tokenizer.peek())) {
+        if (!"from".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
         tokenizer.pop();
 
         String tableName = tokenizer.peek();
-        if(!isName(tableName)) {
+        if (!isName(tableName)) {
             throw ErrorConstants.InvalidCommandException;
         }
         delete.tableName = tableName;
@@ -137,27 +137,27 @@ public class Parser {
     private static Insert parseInsert(Tokenizer tokenizer) throws Exception {
         Insert insert = new Insert();
 
-        if(!"into".equals(tokenizer.peek())) {
+        if (!"into".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
         tokenizer.pop();
 
         String tableName = tokenizer.peek();
-        if(!isName(tableName)) {
+        if (!isName(tableName)) {
             throw ErrorConstants.InvalidCommandException;
         }
         insert.tableName = tableName;
         tokenizer.pop();
 
-        if(!"values".equals(tokenizer.peek())) {
+        if (!"values".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
 
         List<String> values = new ArrayList<>();
-        while(true) {
+        while (true) {
             tokenizer.pop();
             String value = tokenizer.peek();
-            if("".equals(value)) {
+            if ("".equals(value)) {
                 break;
             } else {
                 values.add(value);
@@ -173,18 +173,18 @@ public class Parser {
 
         List<String> fields = new ArrayList<>();
         String asterisk = tokenizer.peek();
-        if("*".equals(asterisk)) {
+        if ("*".equals(asterisk)) {
             fields.add(asterisk);
             tokenizer.pop();
         } else {
-            while(true) {
+            while (true) {
                 String field = tokenizer.peek();
-                if(!isName(field)) {
+                if (!isName(field)) {
                     throw ErrorConstants.InvalidCommandException;
                 }
                 fields.add(field);
                 tokenizer.pop();
-                if(",".equals(tokenizer.peek())) {
+                if (",".equals(tokenizer.peek())) {
                     tokenizer.pop();
                 } else {
                     break;
@@ -193,20 +193,20 @@ public class Parser {
         }
         read.fields = fields.toArray(new String[fields.size()]);
 
-        if(!"from".equals(tokenizer.peek())) {
+        if (!"from".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
         tokenizer.pop();
 
         String tableName = tokenizer.peek();
-        if(!isName(tableName)) {
+        if (!isName(tableName)) {
             throw ErrorConstants.InvalidCommandException;
         }
         read.tableName = tableName;
         tokenizer.pop();
 
         String tmp = tokenizer.peek();
-        if("".equals(tmp)) {
+        if ("".equals(tmp)) {
             read.where = null;
             return read;
         }
@@ -218,7 +218,7 @@ public class Parser {
     private static Where parseWhere(Tokenizer tokenizer) throws Exception {
         Where where = new Where();
 
-        if(!"where".equals(tokenizer.peek())) {
+        if (!"where".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
         tokenizer.pop();
@@ -227,11 +227,11 @@ public class Parser {
         where.singleExp1 = exp1;
 
         String logicOp = tokenizer.peek();
-        if("".equals(logicOp)) {
+        if ("".equals(logicOp)) {
             where.logicOp = logicOp;
             return where;
         }
-        if(!isLogicOp(logicOp)) {
+        if (!isLogicOp(logicOp)) {
             throw ErrorConstants.InvalidCommandException;
         }
         where.logicOp = logicOp;
@@ -240,7 +240,7 @@ public class Parser {
         SingleExpression exp2 = parseSingleExp(tokenizer);
         where.singleExp2 = exp2;
 
-        if(!"".equals(tokenizer.peek())) {
+        if (!"".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
         return where;
@@ -250,14 +250,14 @@ public class Parser {
         SingleExpression exp = new SingleExpression();
 
         String field = tokenizer.peek();
-        if(!isName(field)) {
+        if (!isName(field)) {
             throw ErrorConstants.InvalidCommandException;
         }
         exp.field = field;
         tokenizer.pop();
 
         String op = tokenizer.peek();
-        if(!isCmpOp(op)) {
+        if (!isCmpOp(op)) {
             throw ErrorConstants.InvalidCommandException;
         }
         exp.compareOp = op;
@@ -277,18 +277,18 @@ public class Parser {
     }
 
     private static Drop parseDrop(Tokenizer tokenizer) throws Exception {
-        if(!"table".equals(tokenizer.peek())) {
+        if (!"table".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
         tokenizer.pop();
 
         String tableName = tokenizer.peek();
-        if(!isName(tableName)) {
+        if (!isName(tableName)) {
             throw ErrorConstants.InvalidCommandException;
         }
         tokenizer.pop();
 
-        if(!"".equals(tokenizer.peek())) {
+        if (!"".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
 
@@ -298,34 +298,34 @@ public class Parser {
     }
 
     private static Create parseCreate(Tokenizer tokenizer) throws Exception {
-        if(!"table".equals(tokenizer.peek())) {
+        if (!"table".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
         tokenizer.pop();
 
         Create create = new Create();
         String name = tokenizer.peek();
-        if(!isName(name)) {
+        if (!isName(name)) {
             throw ErrorConstants.InvalidCommandException;
         }
         create.tableName = name;
 
         List<String> fNames = new ArrayList<>();
         List<String> fTypes = new ArrayList<>();
-        while(true) {
+        while (true) {
             tokenizer.pop();
             String field = tokenizer.peek();
-            if("(".equals(field)) {
+            if ("(".equals(field)) {
                 break;
             }
 
-            if(!isName(field)) {
+            if (!isName(field)) {
                 throw ErrorConstants.InvalidCommandException;
             }
 
             tokenizer.pop();
             String fieldType = tokenizer.peek();
-            if(!isType(fieldType)) {
+            if (!isType(fieldType)) {
                 throw ErrorConstants.InvalidCommandException;
             }
             fNames.add(field);
@@ -333,11 +333,11 @@ public class Parser {
             tokenizer.pop();
 
             String next = tokenizer.peek();
-            if(",".equals(next)) {
+            if (",".equals(next)) {
                 continue;
-            } else if("".equals(next)) {
+            } else if ("".equals(next)) {
                 throw ErrorConstants.TableNoIndexException;
-            } else if("(".equals(next)) {
+            } else if ("(".equals(next)) {
                 break;
             } else {
                 throw ErrorConstants.InvalidCommandException;
@@ -347,18 +347,18 @@ public class Parser {
         create.fieldType = fTypes.toArray(new String[fTypes.size()]);
 
         tokenizer.pop();
-        if(!"index".equals(tokenizer.peek())) {
+        if (!"index".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
 
         List<String> indexes = new ArrayList<>();
-        while(true) {
+        while (true) {
             tokenizer.pop();
             String field = tokenizer.peek();
-            if(")".equals(field)) {
+            if (")".equals(field)) {
                 break;
             }
-            if(!isName(field)) {
+            if (!isName(field)) {
                 throw ErrorConstants.InvalidCommandException;
             } else {
                 indexes.add(field);
@@ -367,7 +367,7 @@ public class Parser {
         create.index = indexes.toArray(new String[indexes.size()]);
         tokenizer.pop();
 
-        if(!"".equals(tokenizer.peek())) {
+        if (!"".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
         return create;
@@ -379,14 +379,14 @@ public class Parser {
     }
 
     private static Abort parseAbort(Tokenizer tokenizer) throws Exception {
-        if(!"".equals(tokenizer.peek())) {
+        if (!"".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
         return new Abort();
     }
 
     private static Commit parseCommit(Tokenizer tokenizer) throws Exception {
-        if(!"".equals(tokenizer.peek())) {
+        if (!"".equals(tokenizer.peek())) {
             throw ErrorConstants.InvalidCommandException;
         }
         return new Commit();
@@ -395,40 +395,40 @@ public class Parser {
     private static Begin parseBegin(Tokenizer tokenizer) throws Exception {
         String isolation = tokenizer.peek();
         Begin begin = new Begin();
-        if("".equals(isolation)) {
+        if ("".equals(isolation)) {
             return begin;
         }
-        if(!"isolation".equals(isolation)) {
+        if (!"isolation".equals(isolation)) {
             throw ErrorConstants.InvalidCommandException;
         }
 
         tokenizer.pop();
         String level = tokenizer.peek();
-        if(!"level".equals(level)) {
+        if (!"level".equals(level)) {
             throw ErrorConstants.InvalidCommandException;
         }
         tokenizer.pop();
 
         String tmp1 = tokenizer.peek();
-        if("read".equals(tmp1)) {
+        if ("read".equals(tmp1)) {
             tokenizer.pop();
             String tmp2 = tokenizer.peek();
-            if("committed".equals(tmp2)) {
+            if ("committed".equals(tmp2)) {
                 tokenizer.pop();
-                if(!"".equals(tokenizer.peek())) {
+                if (!"".equals(tokenizer.peek())) {
                     throw ErrorConstants.InvalidCommandException;
                 }
                 return begin;
             } else {
                 throw ErrorConstants.InvalidCommandException;
             }
-        } else if("repeatable".equals(tmp1)) {
+        } else if ("repeatable".equals(tmp1)) {
             tokenizer.pop();
             String tmp2 = tokenizer.peek();
-            if("read".equals(tmp2)) {
+            if ("read".equals(tmp2)) {
                 begin.isRepeatableRead = true;
                 tokenizer.pop();
-                if(!"".equals(tokenizer.peek())) {
+                if (!"".equals(tokenizer.peek())) {
                     throw ErrorConstants.InvalidCommandException;
                 }
                 return begin;
